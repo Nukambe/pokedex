@@ -70,6 +70,11 @@ func createCommandMap() map[string]cliCommand {
 			description: "use 'catch [pokemon name or id]' to attempt to catch that pokemon.",
 			callback:    commandCatch,
 		},
+		"inspect": {
+			name:        "inspect",
+			description: "use 'inspect [pokemon]' to see a pokemon's details.",
+			callback:    commandInspect,
+		},
 	}
 }
 
@@ -164,3 +169,33 @@ func commandCatch(args []string) error {
 	}
 	return nil
 }
+
+// INSPECT -------------------------------------------------------------
+func commandInspect(args []string) error {
+	if args == nil {
+		return commandHelp([]string{"inspect"})
+	}
+
+	for _, pkmn := range args {
+		if details, ok := getPokedex()[pkmn]; !ok {
+			fmt.Println("You have not caught a", pkmn)
+		} else {
+			fmt.Println("Name:", details.Name)
+			fmt.Println("ID:", details.Id)
+			fmt.Println("Height:", details.Height)
+			fmt.Println("Weight:", details.Weight)
+			fmt.Println("Types:")
+			for _, pkmnType := range details.Types {
+				fmt.Println("	-", pkmnType.Type.Name)
+			}
+			fmt.Println("Stats:")
+			for _, stats := range details.Stats {
+				fmt.Printf("	- %s: %d\n", stats.Stat.Name, stats.BaseStat)
+			}
+			fmt.Println("Catch Rate:", details.CatchRate)
+		}
+	}
+	return nil
+}
+
+// POKEDEX -------------------------------------------------------------
