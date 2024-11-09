@@ -65,6 +65,11 @@ func createCommandMap() map[string]cliCommand {
 			description: "use 'explore [location name or id]' to see all the pokemon available at that location.",
 			callback:    commandExplore,
 		},
+		"catch": {
+			name:        "catch",
+			description: "use 'catch [pokemon name or id]' to attempt to catch that pokemon.",
+			callback:    commandCatch,
+		},
 	}
 }
 
@@ -89,7 +94,7 @@ func commandExit(args []string) error {
 	return nil
 }
 
-// MAP-----------------------------------------------------------------
+// MAP -------------------------------------------------------------
 var mapMove = pokeapi.GetMap()
 
 func commandMap(args []string) error {
@@ -132,6 +137,30 @@ func commandExplore(args []string) error {
 	fmt.Println("Found Pokemon:")
 	for _, p := range pokemons {
 		fmt.Println(" -", p.Name)
+	}
+	return nil
+}
+
+// CATCH -------------------------------------------------------------
+var getPokedex = pokeapi.CreatePokedex()
+
+func commandCatch(args []string) error {
+	if args == nil {
+		return commandHelp([]string{"catch"})
+	}
+	if len(args) > 1 {
+		return errors.New("you can only catch one pokemon at a time")
+	}
+
+	success, err := getPokedex().Catch(args[0])
+	if err != nil {
+		return fmt.Errorf("unable to catch "+args[0], err)
+	}
+	fmt.Println("Threw a pokeball at", args[0])
+	if success {
+		fmt.Println(args[0], "was caught!")
+	} else {
+		fmt.Println(args[0], "escaped...")
 	}
 	return nil
 }
