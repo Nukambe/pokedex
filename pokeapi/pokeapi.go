@@ -59,6 +59,7 @@ type pokemonDetails struct {
 	Weight         int        `json:"weight"`
 	BaseExperience int        `json:"base_experience"`
 	CatchRate      int
+	Caught         bool
 }
 
 type pokedex map[string]pokemonDetails
@@ -171,10 +172,18 @@ func (pkdx pokedex) Catch(pkmn string) (success bool, err error) {
 		// ADD CATCH RATE TO POKEMON DETAILS
 		details.CatchRate = spcs.CaptureRate
 		// SAVE POKEMON DETAILS TO THE POKEDEX
+		details.Caught = false
 		pkdx[pkmn] = details
 	}
 
 	// CATCH RATE IS 0-255
 	n := rand.Intn(256)
-	return n <= pkdx[pkmn].CatchRate, nil
+	if n <= pkdx[pkmn].CatchRate && !pkdx[pkmn].Caught {
+		details := pkdx[pkmn]
+		details.Caught = true
+		pkdx[pkmn] = details
+		return true, nil
+	}
+
+	return false, nil
 }

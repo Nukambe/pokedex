@@ -75,6 +75,11 @@ func createCommandMap() map[string]cliCommand {
 			description: "use 'inspect [pokemon]' to see a pokemon's details.",
 			callback:    commandInspect,
 		},
+		"pokedex": {
+			name:        "pokedex",
+			description: "Displays the names of all caught pokemon.",
+			callback:    commandPokedex,
+		},
 	}
 }
 
@@ -177,7 +182,7 @@ func commandInspect(args []string) error {
 	}
 
 	for _, pkmn := range args {
-		if details, ok := getPokedex()[pkmn]; !ok {
+		if details, ok := getPokedex()[pkmn]; !ok || !details.Caught {
 			fmt.Println("You have not caught a", pkmn)
 		} else {
 			fmt.Println("Name:", details.Name)
@@ -199,3 +204,19 @@ func commandInspect(args []string) error {
 }
 
 // POKEDEX -------------------------------------------------------------
+func commandPokedex(args []string) error {
+	if len(getPokedex()) == 0 {
+		fmt.Println("You have not caught any pokemon...")
+		return nil
+	}
+
+	fmt.Println("Your Pokedex:")
+	for pkmn, details := range getPokedex() {
+		status := "seen ✕"
+		if details.Caught {
+			status = "caught ✓"
+		}
+		fmt.Printf("	-%s (%s)\n", pkmn, status)
+	}
+	return nil
+}
